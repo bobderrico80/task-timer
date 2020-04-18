@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
+import uuid from 'uuid/v4';
 import './App.css';
 import { deleteTasksRecursively } from './lib/taskUtils';
+import TaskToolBar from './components/task/TaskToolBar';
+import TaskView from './components/task/TaskView';
 
 export enum TaskState {
   INCOMPLETE,
@@ -14,6 +17,7 @@ export enum TaskAction {
   EDIT,
   CANCEL_EDIT,
   DELETE,
+  NEW_SUBTASK,
 }
 
 export interface Task {
@@ -32,6 +36,14 @@ export const App = () => {
   const [tasks, setTasks] = useState([] as Task[]);
   const [playingTaskId, setPlayingTaskId] = useState(null as string | null);
   const [editingTaskId, setEditingTaskId] = useState(null as string | null);
+
+  // Temporary state for testing TaskView
+  const [task, setTask] = useState({
+    id: uuid(),
+    name: 'Some task',
+    state: TaskState.INCOMPLETE,
+    children: [],
+  } as Task);
 
   const deleteTask = (taskId: string) => {
     const nextTasks = deleteTasksRecursively(tasks, taskId);
@@ -56,10 +68,20 @@ export const App = () => {
         return setEditingTaskId(null);
       case TaskAction.DELETE:
         return deleteTask(taskId);
+      default:
     }
   };
 
-  return <div className="App"></div>;
+  return (
+    <div className="App">
+      <TaskView
+        task={task}
+        playingTaskId={playingTaskId}
+        onTaskAction={handleTaskAction}
+        onTaskChange={setTask}
+      />
+    </div>
+  );
 };
 
 export default App;
