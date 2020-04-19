@@ -3,6 +3,7 @@ import uuid from 'uuid/v4';
 import './App.css';
 import { deleteTasksRecursively } from './lib/taskUtils';
 import TaskEdit from './components/task/TaskEdit';
+import TaskItem from './components/task/TaskItem';
 
 export enum TaskState {
   INCOMPLETE,
@@ -74,11 +75,15 @@ export const App = () => {
 
   return (
     <div className="App">
-      <TaskEdit
-        initialTask={task}
-        onTaskAction={handleTaskAction}
-        onSubmit={console.log}
-      />
+      <ul>
+        <TaskItem
+          task={task}
+          editingTaskId={editingTaskId}
+          playingTaskId={playingTaskId}
+          onTaskAction={handleTaskAction}
+          onTaskChange={setTask}
+        />
+      </ul>
     </div>
   );
 };

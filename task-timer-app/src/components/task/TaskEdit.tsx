@@ -8,6 +8,7 @@ export interface TaskEditProps {
 }
 
 const TaskEdit = (props: TaskEditProps) => {
+  const [initialState] = useState(props.initialTask.state);
   const [currentName, setCurrentName] = useState(props.initialTask.name);
   const [ongoingTask, setOngoingTask] = useState(
     props.initialTask.state === TaskState.ONGOING
@@ -15,9 +16,16 @@ const TaskEdit = (props: TaskEditProps) => {
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
-    const newTaskState = ongoingTask
-      ? TaskState.ONGOING
-      : props.initialTask.state;
+
+    let newTaskState: TaskState;
+    if (ongoingTask) {
+      newTaskState = TaskState.ONGOING;
+    } else if (initialState === TaskState.ONGOING) {
+      newTaskState = TaskState.INCOMPLETE;
+    } else {
+      newTaskState = initialState;
+    }
+
     props.onSubmit({
       ...props.initialTask,
       name: currentName,

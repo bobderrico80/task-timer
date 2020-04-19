@@ -25,7 +25,7 @@ describe('The <TaskEdit /> component', () => {
           initialTask={{
             id: 'test-id',
             name: 'foo',
-            state: TaskState.INCOMPLETE,
+            state: TaskState.COMPLETE,
             children: [],
           }}
           onSubmit={onSubmit}
@@ -53,7 +53,7 @@ describe('The <TaskEdit /> component', () => {
       expect(onSubmit).toHaveBeenCalledWith({
         id: 'test-id',
         name: 'bar',
-        state: TaskState.INCOMPLETE,
+        state: TaskState.COMPLETE,
         children: [],
       });
     });
@@ -65,6 +65,18 @@ describe('The <TaskEdit /> component', () => {
         id: 'test-id',
         name: 'foo',
         state: TaskState.ONGOING,
+        children: [],
+      });
+    });
+
+    it('submits the form with initial task state if the ongoing checkbox input is not checked', () => {
+      fireEvent.click(checkbox);
+      fireEvent.click(checkbox);
+      fireEvent.click(submitButton);
+      expect(onSubmit).toHaveBeenCalledWith({
+        id: 'test-id',
+        name: 'foo',
+        state: TaskState.COMPLETE,
         children: [],
       });
     });
