@@ -33,7 +33,38 @@ export interface TaskActionDispatch {
 
 const initialTasks: Task[] = [
   { id: uuid(), name: 'Buy milk', state: TaskState.INCOMPLETE, children: [] },
-  { id: uuid(), name: 'Do laundry', state: TaskState.INCOMPLETE, children: [] },
+  {
+    id: uuid(),
+    name: 'Do laundry',
+    state: TaskState.INCOMPLETE,
+    children: [
+      {
+        id: uuid(),
+        name: 'Wash clothes',
+        state: TaskState.INCOMPLETE,
+        children: [],
+      },
+      {
+        id: uuid(),
+        name: 'Put away laundry',
+        state: TaskState.INCOMPLETE,
+        children: [
+          {
+            id: uuid(),
+            name: 'My laundry',
+            state: TaskState.INCOMPLETE,
+            children: [],
+          },
+          {
+            id: uuid(),
+            name: 'Kids laundry',
+            state: TaskState.INCOMPLETE,
+            children: [],
+          },
+        ],
+      },
+    ],
+  },
   {
     id: uuid(),
     name: 'Take out trash',

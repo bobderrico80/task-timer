@@ -1,4 +1,4 @@
-import { Task } from '../App';
+import { Task, TaskState } from '../App';
 
 export const deleteTasksRecursively = (
   tasks: Task[],
@@ -21,4 +21,28 @@ export const deleteTasksRecursively = (
 
     return [...previousTasks, nextTask];
   }, []);
+};
+
+export const updateChildTaskStateRecursively = (
+  tasks: Task[],
+  taskState: TaskState
+): Task[] => {
+  return tasks.map((task) => {
+    if (task.children.length) {
+      const newChildren = updateChildTaskStateRecursively(
+        task.children,
+        taskState
+      );
+      return {
+        ...task,
+        state: taskState,
+        children: newChildren,
+      };
+    }
+
+    return {
+      ...task,
+      state: taskState,
+    };
+  });
 };

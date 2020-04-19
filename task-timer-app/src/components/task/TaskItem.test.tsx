@@ -1,5 +1,10 @@
 import React from 'react';
-import { RenderResult, render, fireEvent } from '@testing-library/react';
+import {
+  RenderResult,
+  render,
+  fireEvent,
+  cleanup,
+} from '@testing-library/react';
 import TaskItem from './TaskItem';
 import { TaskState, TaskAction } from '../../App';
 
@@ -99,6 +104,187 @@ describe('The <TaskItem /> component', () => {
       expect(onTaskAction).toHaveBeenCalledWith({
         action: TaskAction.CANCEL_EDIT,
         taskId: 'test-id',
+      });
+    });
+  });
+
+  describe('child task behavior', () => {
+    beforeEach(() => {
+      component = render(
+        <TaskItem
+          task={{
+            id: 'test-id',
+            name: 'foo',
+            state: TaskState.INCOMPLETE,
+            children: [
+              {
+                id: 'test-bar',
+                name: 'bar',
+                state: TaskState.INCOMPLETE,
+                children: [
+                  {
+                    id: 'test-baz',
+                    name: 'baz',
+                    state: TaskState.INCOMPLETE,
+                    children: [],
+                  },
+                ],
+              },
+              {
+                id: 'test-qux',
+                name: 'qux',
+                state: TaskState.INCOMPLETE,
+                children: [],
+              },
+            ],
+          }}
+          editingTaskId="test-bar"
+          playingTaskId="test-qux"
+          onTaskChange={onTaskChange}
+          onTaskAction={onTaskAction}
+        />
+      );
+    });
+
+    it('renders child items in a list', () => {
+      expect(component.getAllByRole('list')[0].children.length).toEqual(2);
+    });
+
+    it('passes editingTaskId to children as expected', () => {
+      const childListItems = [...component.getAllByRole('list')[0].children];
+      expect(childListItems[0]).toHaveTextContent('Save');
+    });
+
+    it('passes playingTaskId to children as expected', () => {
+      const childListItems = [...component.getAllByRole('list')[0].children];
+      expect(childListItems[1]).toHaveTextContent('Stop');
+    });
+
+    it('updates the state of child tasks as expected', () => {
+      fireEvent.click(component.getByLabelText('baz'));
+      expect(onTaskChange).toHaveBeenCalledWith({
+        id: 'test-id',
+        name: 'foo',
+        state: TaskState.INCOMPLETE,
+        children: [
+          {
+            id: 'test-bar',
+            name: 'bar',
+            state: TaskState.INCOMPLETE,
+            children: [
+              {
+                id: 'test-baz',
+                name: 'baz',
+                state: TaskState.COMPLETE,
+                children: [],
+              },
+            ],
+          },
+          {
+            id: 'test-qux',
+            name: 'qux',
+            state: TaskState.INCOMPLETE,
+            children: [],
+          },
+        ],
+      });
+    });
+
+    it('updates the state of child tasks to match that of the parent task when changed', () => {
+      fireEvent.click(component.getByLabelText('foo'));
+      expect(onTaskChange).toHaveBeenCalledWith({
+        id: 'test-id',
+        name: 'foo',
+        state: TaskState.COMPLETE,
+        children: [
+          {
+            id: 'test-bar',
+            name: 'bar',
+            state: TaskState.COMPLETE,
+            children: [
+              {
+                id: 'test-baz',
+                name: 'baz',
+                state: TaskState.COMPLETE,
+                children: [],
+              },
+            ],
+          },
+          {
+            id: 'test-qux',
+            name: 'qux',
+            state: TaskState.COMPLETE,
+            children: [],
+          },
+        ],
+      });
+    });
+
+    it('does not update state of child tasks if parent task state is switched to ONGOING', () => {
+      // Make the first task ongoing
+      cleanup();
+      component = render(
+        <TaskItem
+          task={{
+            id: 'test-id',
+            name: 'foo',
+            state: TaskState.INCOMPLETE,
+            children: [
+              {
+                id: 'test-bar',
+                name: 'bar',
+                state: TaskState.INCOMPLETE,
+                children: [
+                  {
+                    id: 'test-baz',
+                    name: 'baz',
+                    state: TaskState.INCOMPLETE,
+                    children: [],
+                  },
+                ],
+              },
+              {
+                id: 'test-qux',
+                name: 'qux',
+                state: TaskState.INCOMPLETE,
+                children: [],
+              },
+            ],
+          }}
+          editingTaskId="test-id"
+          playingTaskId="test-qux"
+          onTaskChange={onTaskChange}
+          onTaskAction={onTaskAction}
+        />
+      );
+      fireEvent.click(component.getByLabelText('Ongoing task?'));
+      fireEvent.click(component.getByText('Save'));
+
+      expect(onTaskChange).toHaveBeenCalledWith({
+        id: 'test-id',
+        name: 'foo',
+        state: TaskState.ONGOING,
+        children: [
+          {
+            id: 'test-bar',
+            name: 'bar',
+            state: TaskState.INCOMPLETE,
+            children: [
+              {
+                id: 'test-baz',
+                name: 'baz',
+                state: TaskState.INCOMPLETE,
+                children: [],
+              },
+            ],
+          },
+          {
+            id: 'test-qux',
+            name: 'qux',
+            state: TaskState.INCOMPLETE,
+            children: [],
+          },
+        ],
       });
     });
   });
