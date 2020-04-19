@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import './App.css';
 import { deleteTasksRecursively } from './lib/taskUtils';
-import TaskEdit from './components/task/TaskEdit';
-import TaskItem from './components/task/TaskItem';
+import TaskList from './components/task/TaskList';
 
 export enum TaskState {
   INCOMPLETE,
@@ -32,30 +31,40 @@ export interface TaskActionDispatch {
   taskId: string;
 }
 
-export const App = () => {
-  const [tasks, setTasks] = useState([] as Task[]);
-  const [playingTaskId, setPlayingTaskId] = useState(null as string | null);
-  const [editingTaskId, setEditingTaskId] = useState(null as string | null);
-
-  // Temporary state for testing TaskView
-  const [task, setTask] = useState({
+const initialTasks: Task[] = [
+  { id: uuid(), name: 'Buy milk', state: TaskState.INCOMPLETE, children: [] },
+  { id: uuid(), name: 'Do laundry', state: TaskState.INCOMPLETE, children: [] },
+  {
     id: uuid(),
-    name: 'Some task',
+    name: 'Take out trash',
     state: TaskState.INCOMPLETE,
     children: [],
-  } as Task);
+  },
+];
+
+export const App = () => {
+  const [tasks, setTasks] = useState(initialTasks);
+  const [playingTaskId, setPlayingTaskId] = useState(null as string | null);
+  const [editingTaskId, setEditingTaskId] = useState(null as string | null);
 
   const deleteTask = (taskId: string) => {
     const nextTasks = deleteTasksRecursively(tasks, taskId);
     setTasks(nextTasks);
   };
 
-  const handleTaskChange = (tasks: Task[]) => {
-    setTasks(tasks);
+  const handleTaskChange = (newTask: Task) => {
+    const newTasks = tasks.map((task) => {
+      if (task.id === newTask.id) {
+        return newTask;
+      }
+
+      return task;
+    });
+
+    setTasks(newTasks);
   };
 
   const handleTaskAction = (taskActionDispatch: TaskActionDispatch) => {
-    console.log(taskActionDispatch);
     const { action, taskId } = taskActionDispatch;
 
     switch (action) {
@@ -75,15 +84,13 @@ export const App = () => {
 
   return (
     <div className="App">
-      <ul>
-        <TaskItem
-          task={task}
-          editingTaskId={editingTaskId}
-          playingTaskId={playingTaskId}
-          onTaskAction={handleTaskAction}
-          onTaskChange={setTask}
-        />
-      </ul>
+      <TaskList
+        tasks={tasks}
+        editingTaskId={editingTaskId}
+        playingTaskId={playingTaskId}
+        onTaskAction={handleTaskAction}
+        onTaskChange={handleTaskChange}
+      />
     </div>
   );
 };
