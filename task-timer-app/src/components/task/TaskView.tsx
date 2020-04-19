@@ -46,6 +46,7 @@ const TaskView = (props: TaskViewProps) => {
     <>
       <label htmlFor={id}>
         <input
+          id={id}
           type="checkbox"
           checked={props.task.state === TaskState.COMPLETE}
           onChange={handleCheckboxChange}

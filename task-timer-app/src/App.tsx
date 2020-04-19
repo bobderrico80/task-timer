@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import uuid from 'uuid/v4';
 import './App.css';
 import { deleteTasksRecursively } from './lib/taskUtils';
-import TaskToolBar from './components/task/TaskToolBar';
-import TaskView from './components/task/TaskView';
+import TaskEdit from './components/task/TaskEdit';
 
 export enum TaskState {
   INCOMPLETE,
@@ -55,6 +54,7 @@ export const App = () => {
   };
 
   const handleTaskAction = (taskActionDispatch: TaskActionDispatch) => {
+    console.log(taskActionDispatch);
     const { action, taskId } = taskActionDispatch;
 
     switch (action) {
@@ -74,11 +74,10 @@ export const App = () => {
 
   return (
     <div className="App">
-      <TaskView
-        task={task}
-        playingTaskId={playingTaskId}
+      <TaskEdit
+        initialTask={task}
         onTaskAction={handleTaskAction}
-        onTaskChange={setTask}
+        onSubmit={console.log}
       />
     </div>
   );
