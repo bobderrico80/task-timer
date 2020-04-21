@@ -24,8 +24,6 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: cd task-timer-app  
-    - run: npm ci
-    - run: npm test
+    - run: cd task-timer-app && npm ci && npm test
       env:
         CI: true
